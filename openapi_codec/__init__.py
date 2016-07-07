@@ -6,7 +6,7 @@ from openapi_codec.utils import _get_string, _get_dict, _get_list, _get_bool, ge
 import json
 
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 def _expand_schema(schema):
@@ -122,7 +122,7 @@ def _parse_document(data, base_url=None):
 
 
 class OpenAPICodec(BaseCodec):
-    media_type = "application/json"
+    media_type = "application/openapi+json"
 
     def load(self, bytes, base_url=None):
         """
