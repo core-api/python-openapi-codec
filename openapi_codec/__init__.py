@@ -1,9 +1,11 @@
+import json
+
 from coreapi.codecs.base import BaseCodec
-from coreapi.compat import urlparse
+from coreapi.compat import force_bytes, urlparse
 from coreapi.document import Document, Link, Field
 from coreapi.exceptions import ParseError
 from openapi_codec.utils import _get_string, _get_dict, _get_list, _get_bool, get_strings, get_dicts
-import json
+from openapi_codec.converters import DocumentToOpenAPIConverter
 
 
 __version__ = "0.0.3"
@@ -138,3 +140,7 @@ class OpenAPICodec(BaseCodec):
             raise ParseError('Top level node must be a document.')
 
         return doc
+
+    def dump(self, document, **kwargs):
+        converter = DocumentToOpenAPIConverter(document)
+        return force_bytes(json.dumps(converter.convert()))

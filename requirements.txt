@@ -12,4 +12,5 @@ pyflakes==1.2.3
 pytest==2.9.2
 requests==2.10.0
 simplejson==3.8.2
+six==1.10.0
 uritemplate==0.6
