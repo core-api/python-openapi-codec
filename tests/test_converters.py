@@ -1,11 +1,9 @@
 import uuid
-from unittest import TestCase
 
-import six
 import coreapi
 from openapi_codec.converters import DocumentToOpenAPIConverter
 
-from .compat import mock
+from .compat import mock, TestCase
 
 
 class TestGetInfoObject(TestCase):
@@ -51,7 +49,7 @@ class TestGetPathsObject(TestCase):
         expected = [
             link.action for link in self.document.data['users'].values()
         ]
-        six.assertCountEqual(self, expected, self.sut[self.path].keys())
+        self.assertCountEqual(expected, self.sut[self.path].keys())
 
 
 class TestGetParameters(TestCase):

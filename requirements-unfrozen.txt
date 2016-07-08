@@ -1,6 +1,5 @@
 # Package requirements
 coreapi
-six
 
 # Testing requirements
 coverage

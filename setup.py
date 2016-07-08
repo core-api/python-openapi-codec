@@ -61,7 +61,7 @@ setup(
     author_email='tom@tomchristie.com',
     packages=get_packages('openapi_codec'),
     package_data=get_package_data('openapi_codec'),
-    install_requires=['six>=1.10.0'],
+    install_requires=[],
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',

@@ -1,4 +1,4 @@
-from six.moves.urllib.parse import urlparse
+from coreapi.compat import urlparse
 
 
 class DocumentToOpenAPIConverter(object):
@@ -12,7 +12,7 @@ class DocumentToOpenAPIConverter(object):
         """
         Generates root of the Swagger spec.
         """
-        parsed_url = urlparse(self.document.url)
+        parsed_url = urlparse.urlparse(self.document.url)
 
         return {
             'swagger': '2.0',
