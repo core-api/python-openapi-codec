@@ -8,7 +8,7 @@ from openapi_codec.encode import generate_swagger_object
 from openapi_codec.decode import _parse_document
 
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 
 class OpenAPICodec(BaseCodec):
