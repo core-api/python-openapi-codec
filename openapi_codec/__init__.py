@@ -5,7 +5,7 @@ from coreapi.compat import force_bytes, urlparse
 from coreapi.document import Document, Link, Field
 from coreapi.exceptions import ParseError
 from openapi_codec.utils import _get_string, _get_dict, _get_list, _get_bool, get_strings, get_dicts
-from openapi_codec.converters import DocumentToOpenAPIConverter
+from openapi_codec.converters import generate_swagger_object
 
 
 __version__ = "0.0.3"
@@ -142,5 +142,5 @@ class OpenAPICodec(BaseCodec):
         return doc
 
     def dump(self, document, **kwargs):
-        converter = DocumentToOpenAPIConverter(document)
-        return force_bytes(json.dumps(converter.convert()))
+        data = generate_swagger_object(document)
+        return force_bytes(json.dumps(data))
