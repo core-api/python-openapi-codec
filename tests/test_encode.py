@@ -1,5 +1,5 @@
 import coreapi
-from openapi_codec.converters import generate_swagger_object, _get_parameters
+from openapi_codec.encode import generate_swagger_object, _get_parameters
 from unittest import TestCase
 
 
