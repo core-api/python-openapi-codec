@@ -13,6 +13,7 @@ __version__ = "0.0.4"
 
 class OpenAPICodec(BaseCodec):
     media_type = "application/openapi+json"
+    supports = ['encoding', 'decoding']
 
     def load(self, bytes, base_url=None):
         """
