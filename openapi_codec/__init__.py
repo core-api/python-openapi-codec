@@ -8,11 +8,12 @@ from openapi_codec.encode import generate_swagger_object
 from openapi_codec.decode import _parse_document
 
 
-__version__ = "0.0.4"
+__version__ = "1.0.0"
 
 
 class OpenAPICodec(BaseCodec):
     media_type = "application/openapi+json"
+    supports = ['encoding', 'decoding']
 
     def load(self, bytes, base_url=None):
         """
