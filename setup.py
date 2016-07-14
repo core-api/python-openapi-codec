@@ -54,7 +54,7 @@ if sys.argv[-1] == 'publish':
 setup(
     name='openapi-codec',
     version=version,
-    url='http://github.com/encode/openapi-codec/',
+    url='http://github.com/core-api/python-openapi-codec/',
     license='BSD',
     description='An OpenAPI codec for Core API.',
     author='Tom Christie',
