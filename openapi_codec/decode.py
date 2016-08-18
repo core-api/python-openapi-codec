@@ -27,21 +27,22 @@ def _parse_document(data, base_url=None):
                 name = _get_string(parameter, 'name')
                 location = _get_string(parameter, 'in')
                 required = _get_bool(parameter, 'required', default=(location == 'path'))
+                description = _get_string(parameter, 'description')
                 if location == 'body':
                     schema = _get_dict(parameter, 'schema', dereference_using=data)
                     expanded = _expand_schema(schema)
                     if expanded is not None:
                         expanded_fields = [
-                            Field(name=field_name, location='form', required=is_required)
+                            Field(name=field_name, location='form', required=is_required, description=description)
                             for field_name, is_required in expanded
                             if not any([field.name == name for field in fields])
                         ]
                         fields += expanded_fields
                     else:
-                        field = Field(name=name, location='body', required=True)
+                        field = Field(name=name, location='body', required=True, description=description)
                         fields.append(field)
                 else:
-                    field = Field(name=name, location=location, required=required)
+                    field = Field(name=name, location=location, required=required, description=description)
                     fields.append(field)
             link = Link(url=url, action=action, fields=fields)
 
