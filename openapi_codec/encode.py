@@ -32,8 +32,9 @@ def _get_paths_object(document):
             if link.url not in paths:
                 paths[link.url] = {}
 
+            method = link.action.lower() or 'get'
             operation = _get_operation(tag, link)
-            paths[link.url].update({link.action: operation})
+            paths[link.url].update({method: operation})
 
     return paths
 
@@ -45,7 +46,6 @@ def _get_operation(tag, link):
         'responses': _get_responses(link),
         'parameters': _get_parameters(link.fields)
     }
-
 
 def _get_parameters(fields):
     """
