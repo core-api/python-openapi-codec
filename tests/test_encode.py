@@ -59,6 +59,7 @@ class TestPaths(TestCase):
             },
             'parameters': [],
             'description': '',
+            'operationId': 'list',
             'tags': ['users']
         }
         self.assertEquals(self.swagger['paths'][self.path]['get'], expected)
@@ -70,6 +71,7 @@ class TestPaths(TestCase):
             },
             'parameters': [],
             'description': '',
+            'operationId': 'create',
             'tags': ['users']
         }
         self.assertEquals(self.swagger['paths'][self.path]['post'], expected)
@@ -83,7 +85,7 @@ class TestParameters(TestCase):
             location='query',
             description='A valid email address.'
         )
-        self.swagger = _get_parameters([self.field])
+        self.swagger = _get_parameters(coreapi.Link(fields=[self.field]), encoding='')
 
     def test_expected_fields(self):
         self.assertEquals(len(self.swagger), 1)
