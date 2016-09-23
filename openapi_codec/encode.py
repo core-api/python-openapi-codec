@@ -80,6 +80,7 @@ def _get_parameters(link, encoding):
         location = get_location(link, field)
         if location == 'form':
             if encoding in ('multipart/form-data', 'application/x-www-form-urlencoded'):
+                # 'formData' in swagger MUST be one of these media types.
                 parameter = {
                     'name': field.name,
                     'required': field.required,
@@ -89,6 +90,8 @@ def _get_parameters(link, encoding):
                 }
                 parameters.append(parameter)
             else:
+                # Expand coreapi fields with location='form' into a single swagger
+                # parameter, with a schema containing multiple properties.
                 schema_property = {
                     'description': field.description
                 }
@@ -131,13 +134,6 @@ def _get_parameters(link, encoding):
         })
 
     return parameters
-
-
-def _get_in(link, field):
-    in_location = get_location(link, field)
-    if in_location == 'form':
-        return 'formData'
-    return in_location
 
 
 def _get_responses(link):
