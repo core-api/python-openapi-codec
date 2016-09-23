@@ -13,7 +13,6 @@ __version__ = "1.1.0"
 
 class OpenAPICodec(BaseCodec):
     media_type = "application/openapi+json"
-    supports = ['encoding', 'decoding']
 
     def decode(self, bytes, **options):
         """
