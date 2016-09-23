@@ -43,7 +43,7 @@ def _parse_document(data, base_url=None):
                         expanded_fields = [
                             Field(name=field_name, location='form', required=is_required, description=field_description)
                             for field_name, is_required, field_description in expanded
-                            if not any([field.name == name for field in fields])
+                            if not any([field.name == field_name for field in fields])
                         ]
                         fields += expanded_fields
                     else:
