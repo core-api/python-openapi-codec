@@ -32,6 +32,6 @@ class OpenAPICodec(BaseCodec):
 
     def encode(self, document, **options):
         if not isinstance(document, Document):
-            raise ValueError('Expected a `coreapi.Document` instance')
+            raise TypeError('Expected a `coreapi.Document` instance')
         data = generate_swagger_object(document)
         return force_bytes(json.dumps(data))
