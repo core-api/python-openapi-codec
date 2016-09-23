@@ -10,17 +10,13 @@ def generate_swagger_object(document):
 
     return {
         'swagger': '2.0',
-        'info': _get_info_object(document),
+        'info': {
+            'title': document.title,
+            'version': ''  # Required by the spec
+        },
         'paths': _get_paths_object(document),
         'host': parsed_url.netloc,
         'schemes': [parsed_url.scheme]
-    }
-
-
-def _get_info_object(document):
-    return {
-        'title': document.title,
-        'version': ''  # Required by the spec
     }
 
 
@@ -142,8 +138,8 @@ def _get_responses(link):
     on action / method type.
     """
     template = {'description': ''}
-    if link.action == 'post':
+    if link.action.lower() == 'post':
         return {'201': template}
-    if link.action == 'delete':
+    if link.action.lower() == 'delete':
         return {'204': template}
     return {'200': template}

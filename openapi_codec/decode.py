@@ -12,7 +12,7 @@ def _parse_document(data, base_url=None):
     paths = _get_dict(data, 'paths')
     content = {}
     for path in paths.keys():
-        url = urlparse.urljoin(base_url, path.lstrip('/'))
+        url = base_url + path.lstrip('/')
         spec = _get_dict(paths, path)
         default_parameters = get_dicts(_get_list(spec, 'parameters'))
         for action in spec.keys():
@@ -83,7 +83,7 @@ def _get_document_base_url(data, base_url=None):
     Get the base url to use when constructing absolute paths from the
     relative ones provided in the schema defination.
     """
-    prefered_schemes = ['http', 'https']
+    prefered_schemes = ['https', 'http']
     if base_url:
         url_components = urlparse.urlparse(base_url)
         default_host = url_components.netloc
