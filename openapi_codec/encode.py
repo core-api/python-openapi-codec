@@ -1,3 +1,4 @@
+import coreapi
 from coreapi.compat import urlparse
 from openapi_codec.utils import get_method, get_encoding, get_location
 
@@ -20,35 +21,54 @@ def generate_swagger_object(document):
     }
 
 
+def _add_tag_prefix(item):
+    operation_id, link, tags = item
+    if tags:
+        operation_id = tags[0] + '_' + operation_id
+    return (operation_id, link, tags)
+
+
+def _get_links(document):
+    """
+    Return a list of (operation_id, [tags], link)
+    """
+    # Extract all the links from the first or second level of the document.
+    links = []
+    for key, link in document.links.items():
+        links.append((key, link, []))
+    for key0, obj in document.data.items():
+        if isinstance(obj, coreapi.Object):
+            for key1, link in obj.links.items():
+                links.append((key1, link, [key0]))
+
+    # Determine if the operation ids each have unique names or not.
+    operation_ids = [item[0] for item in links]
+    unique = len(set(operation_ids)) == len(links)
+
+    # If the operation ids are not unique, then prefix them with the tag.
+    if not unique:
+        return [_add_tag_prefix(item) for item in links]
+
+    return links
+
+
 def _get_paths_object(document):
     paths = {}
 
-    # Top-level links. We do not include a swagger 'tag' for these.
-    for operation_id, link in document.links.items():
+    links = _get_links(document)
+
+    for operation_id, link, tags in links:
         if link.url not in paths:
             paths[link.url] = {}
 
         method = get_method(link)
-        operation = _get_operation(link, operation_id)
+        operation = _get_operation(operation_id, link, tags)
         paths[link.url].update({method: operation})
-
-    # Second-level links. We include a swagger 'tag' for these.
-    for tag, object_ in document.data.items():
-        if not hasattr(object_, 'links'):
-            continue
-
-        for operation_id, link in object_.links.items():
-            if link.url not in paths:
-                paths[link.url] = {}
-
-            method = get_method(link)
-            operation = _get_operation(link, operation_id, tags=[tag])
-            paths[link.url].update({method: operation})
 
     return paths
 
 
-def _get_operation(link, operation_id, tags=None):
+def _get_operation(operation_id, link, tags):
     encoding = get_encoding(link)
 
     operation = {

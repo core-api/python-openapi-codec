@@ -68,10 +68,13 @@ def _parse_document(data, base_url=None):
             tags = get_strings(_get_list(operation, 'tags'))
             operation_id = _get_string(operation, 'operationId')
             if tags:
-                for tag in tags:
-                    if tag not in content:
-                        content[tag] = {}
-                    content[tag][operation_id] = link
+                tag = tags[0]
+                prefix = tag + '_'
+                if operation_id.startswith(prefix):
+                    operation_id = operation_id[len(prefix):]
+                if tag not in content:
+                    content[tag] = {}
+                content[tag][operation_id] = link
             else:
                 content[operation_id] = link
 
