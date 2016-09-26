@@ -8,14 +8,14 @@ from openapi_codec.encode import generate_swagger_object
 from openapi_codec.decode import _parse_document
 
 
-__version__ = "1.0.0"
+__version__ = '1.1.0'
 
 
 class OpenAPICodec(BaseCodec):
-    media_type = "application/openapi+json"
-    supports = ['encoding', 'decoding']
+    media_type = 'application/openapi+json'
+    format = 'openapi'
 
-    def load(self, bytes, base_url=None):
+    def decode(self, bytes, **options):
         """
         Takes a bytestring and returns a document.
         """
@@ -24,12 +24,15 @@ class OpenAPICodec(BaseCodec):
         except ValueError as exc:
             raise ParseError('Malformed JSON. %s' % exc)
 
+        base_url = options.get('base_url')
         doc = _parse_document(data, base_url)
         if not isinstance(doc, Document):
             raise ParseError('Top level node must be a document.')
 
         return doc
 
-    def dump(self, document, **kwargs):
+    def encode(self, document, **options):
+        if not isinstance(document, Document):
+            raise TypeError('Expected a `coreapi.Document` instance')
         data = generate_swagger_object(document)
         return force_bytes(json.dumps(data))

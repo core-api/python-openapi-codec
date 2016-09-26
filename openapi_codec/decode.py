@@ -8,10 +8,11 @@ def _parse_document(data, base_url=None):
     base_url = _get_document_base_url(data, base_url)
     info = _get_dict(data, 'info')
     title = _get_string(info, 'title')
+    consumes = get_strings(_get_list(data, 'consumes'))
     paths = _get_dict(data, 'paths')
     content = {}
     for path in paths.keys():
-        url = urlparse.urljoin(base_url, path.lstrip('/'))
+        url = base_url + path.lstrip('/')
         spec = _get_dict(paths, path)
         default_parameters = get_dicts(_get_list(spec, 'parameters'))
         for action in spec.keys():
@@ -20,7 +21,13 @@ def _parse_document(data, base_url=None):
                 continue
             operation = _get_dict(spec, action)
 
+            link_description = _get_string(operation, 'description')
+            link_consumes = get_strings(_get_list(operation, 'consumes', consumes))
+
             # Determine any fields on the link.
+            has_body = False
+            has_form = False
+
             fields = []
             parameters = get_dicts(_get_list(operation, 'parameters', default_parameters), dereference_using=data)
             for parameter in parameters:
@@ -29,31 +36,45 @@ def _parse_document(data, base_url=None):
                 required = _get_bool(parameter, 'required', default=(location == 'path'))
                 description = _get_string(parameter, 'description')
                 if location == 'body':
+                    has_body = True
                     schema = _get_dict(parameter, 'schema', dereference_using=data)
                     expanded = _expand_schema(schema)
                     if expanded is not None:
                         expanded_fields = [
-                            Field(name=field_name, location='form', required=is_required, description=description)
-                            for field_name, is_required in expanded
-                            if not any([field.name == name for field in fields])
+                            Field(name=field_name, location='form', required=is_required, description=field_description)
+                            for field_name, is_required, field_description in expanded
+                            if not any([field.name == field_name for field in fields])
                         ]
                         fields += expanded_fields
                     else:
-                        field = Field(name=name, location='body', required=True, description=description)
+                        field = Field(name=name, location='body', required=required, description=description)
                         fields.append(field)
                 else:
+                    if location == 'formData':
+                        has_form = True
+                        location = 'form'
                     field = Field(name=name, location=location, required=required, description=description)
                     fields.append(field)
-            link = Link(url=url, action=action, fields=fields)
+
+            encoding = ''
+            if has_body:
+                encoding = _select_encoding(link_consumes)
+            elif has_form:
+                encoding = _select_encoding(link_consumes, form=True)
+
+            link = Link(url=url, action=action, encoding=encoding, fields=fields, description=link_description)
 
             # Add the link to the document content.
             tags = get_strings(_get_list(operation, 'tags'))
             operation_id = _get_string(operation, 'operationId')
             if tags:
-                for tag in tags:
-                    if tag not in content:
-                        content[tag] = {}
-                    content[tag][operation_id] = link
+                tag = tags[0]
+                prefix = tag + '_'
+                if operation_id.startswith(prefix):
+                    operation_id = operation_id[len(prefix):]
+                if tag not in content:
+                    content[tag] = {}
+                content[tag][operation_id] = link
             else:
                 content[operation_id] = link
 
@@ -65,7 +86,7 @@ def _get_document_base_url(data, base_url=None):
     Get the base url to use when constructing absolute paths from the
     relative ones provided in the schema defination.
     """
-    prefered_schemes = ['http', 'https']
+    prefered_schemes = ['https', 'http']
     if base_url:
         url_components = urlparse.urlparse(base_url)
         default_host = url_components.netloc
@@ -76,10 +97,12 @@ def _get_document_base_url(data, base_url=None):
 
     host = _get_string(data, 'host', default=default_host)
     path = _get_string(data, 'basePath', default='/')
+    path = '/' + path.lstrip('/')
+    path = path.rstrip('/') + '/'
 
     if not host:
         # No host is provided, and we do not have an initial URL.
-        return path.strip('/') + '/'
+        return path
 
     schemes = _get_list(data, 'schemes')
 
@@ -97,7 +120,35 @@ def _get_document_base_url(data, base_url=None):
         else:
             raise ParseError('Unsupported transport schemes "%s"' % schemes)
 
-    return '%s://%s/%s/' % (scheme, host, path.strip('/'))
+    return '%s://%s%s' % (scheme, host, path)
+
+
+def _select_encoding(consumes, form=False):
+    """
+    Given an OpenAPI 'consumes' list, return a single 'encoding' for CoreAPI.
+    """
+    if form:
+        preference = [
+            'multipart/form-data',
+            'application/x-www-form-urlencoded',
+            'application/json'
+        ]
+    else:
+        preference = [
+            'application/json',
+            'multipart/form-data',
+            'application/x-www-form-urlencoded',
+            'application/octet-stream'
+        ]
+
+    if not consumes:
+        return preference[0]
+
+    for media_type in preference:
+        if media_type in consumes:
+            return media_type
+
+    return consumes[0]
 
 
 def _expand_schema(schema):
@@ -110,7 +161,7 @@ def _expand_schema(schema):
     schema_required = _get_list(schema, 'required')
     if ((schema_type == ['object']) or (schema_type == 'object')) and schema_properties:
         return [
-            (key, key in schema_required)
+            (key, key in schema_required, schema_properties[key].get('description'))
             for key in schema_properties.keys()
         ]
     return None
