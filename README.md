@@ -25,6 +25,11 @@ To create a swagger schema from a `coreapi.Document`, use the codec directly.
 
 ## Using with the Python Client Library
 
+Install `coreapi` and the `openapi-codec`.
+
+    $ pip install coreapi
+    $ pip install openapi-codec
+
 To use the Python client library to interact with a service that exposes a Swagger schema,
 include the codec in [the `decoders` argument][decoders].
 
@@ -47,7 +52,8 @@ At this point you can now start to interact with the API:
 
 Once the `openapi-codec` package is installed, the codec will automatically become available to the command line client.
 
-    $ pip install coreapi-cli openapi-codec
+    $ pip install coreapi-cli
+    $ pip install openapi-codec
     $ coreapi codecs show
     Codec name   Media type                 Support              Package
     corejson   | application/coreapi+json | encoding, decoding | coreapi==2.0.7
