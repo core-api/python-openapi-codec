@@ -9,16 +9,21 @@ def generate_swagger_object(document):
     """
     parsed_url = urlparse.urlparse(document.url)
 
-    return {
+    swagger = {
         'swagger': '2.0',
         'info': {
             'title': document.title,
             'version': ''  # Required by the spec
         },
-        'paths': _get_paths_object(document),
-        'host': parsed_url.netloc,
-        'schemes': [parsed_url.scheme]
+        'paths': _get_paths_object(document)
     }
+
+    if parsed_url.netloc:
+        swagger['host'] = parsed_url.netloc
+    if parsed_url.scheme:
+        swagger['schemes'] = [parsed_url.scheme]
+
+    return swagger
 
 
 def _add_tag_prefix(item):

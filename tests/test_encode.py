@@ -5,7 +5,7 @@ from unittest import TestCase
 
 class TestBasicInfo(TestCase):
     def setUp(self):
-        self.document = coreapi.Document(title='Example API')
+        self.document = coreapi.Document(title='Example API', url='https://www.example.com/')
         self.swagger = generate_swagger_object(self.document)
 
     def test_info(self):
@@ -23,8 +23,13 @@ class TestBasicInfo(TestCase):
 
     def test_host(self):
         self.assertIn('host', self.swagger)
-        expected = ''
+        expected = 'www.example.com'
         self.assertEquals(self.swagger['host'], expected)
+
+    def test_schemes(self):
+        self.assertIn('schemes', self.swagger)
+        expected = ['https']
+        self.assertEquals(self.swagger['schemes'], expected)
 
 
 class TestPaths(TestCase):
