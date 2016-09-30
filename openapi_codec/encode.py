@@ -1,6 +1,5 @@
-import coreapi
 from coreapi.compat import urlparse
-from openapi_codec.utils import get_method, get_encoding, get_location
+from openapi_codec.utils import get_method, get_encoding, get_location, get_links_from_document
 
 
 def generate_swagger_object(document):
@@ -35,16 +34,18 @@ def _add_tag_prefix(item):
 
 def _get_links(document):
     """
-    Return a list of (operation_id, [tags], link)
+    Return a list of (operation_id, link, [tags])
     """
     # Extract all the links from the first or second level of the document.
     links = []
-    for key, link in document.links.items():
-        links.append((key, link, []))
-    for key0, obj in document.data.items():
-        if isinstance(obj, coreapi.Object):
-            for key1, link in obj.links.items():
-                links.append((key1, link, [key0]))
+    for keys, link in get_links_from_document(document):
+        if len(keys) > 1:
+            operation_id = '_'.join(keys[1:])
+            tags = [keys[0]]
+        else:
+            operation_id = keys[0]
+            tags = []
+        links.append((operation_id, link, tags))
 
     # Determine if the operation ids each have unique names or not.
     operation_ids = [item[0] for item in links]

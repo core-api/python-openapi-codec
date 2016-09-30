@@ -1,3 +1,16 @@
+def get_links_from_document(node, keys=()):
+    links = []
+    for key, link in getattr(node, 'links', {}).items():
+        # Get all the resources at this level
+        index = keys + (key,)
+        links.append((index, link))
+    for key, child in getattr(node, 'data', {}).items():
+        # Descend into any nested structures.
+        index = keys + (key,)
+        links.extend(get_links_from_document(child, index))
+    return links
+
+
 def get_method(link):
     method = link.action.lower()
     if not method:
