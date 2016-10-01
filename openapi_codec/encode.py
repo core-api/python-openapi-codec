@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from coreapi.compat import urlparse
 from openapi_codec.utils import get_method, get_encoding, get_location, get_links_from_document
 
@@ -8,19 +9,19 @@ def generate_swagger_object(document):
     """
     parsed_url = urlparse.urlparse(document.url)
 
-    swagger = {
-        'swagger': '2.0',
-        'info': {
-            'title': document.title,
-            'version': ''  # Required by the spec
-        },
-        'paths': _get_paths_object(document)
-    }
+    swagger = OrderedDict()
+
+    swagger['swagger'] = '2.0'
+    swagger['info'] = OrderedDict()
+    swagger['info']['title'] = document.title
+    swagger['info']['version'] = ''  # Required by the spec
 
     if parsed_url.netloc:
         swagger['host'] = parsed_url.netloc
     if parsed_url.scheme:
         swagger['schemes'] = [parsed_url.scheme]
+
+    swagger['paths'] = _get_paths_object(document)
 
     return swagger
 
@@ -59,7 +60,7 @@ def _get_links(document):
 
 
 def _get_paths_object(document):
-    paths = {}
+    paths = OrderedDict()
 
     links = _get_links(document)
 

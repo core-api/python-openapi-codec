@@ -1,3 +1,15 @@
+def link_sorting_key(link_item):
+    keys, link = link_item
+    action_priority = {
+        '': 0, 'get': 0,
+        'post': 1,
+        'put': 2,
+        'patch': 3,
+        'delete': 4
+    }.get(link.action, 5)
+    return (link.url, action_priority)
+
+
 def get_links_from_document(node, keys=()):
     links = []
     for key, link in getattr(node, 'links', {}).items():
@@ -8,7 +20,7 @@ def get_links_from_document(node, keys=()):
         # Descend into any nested structures.
         index = keys + (key,)
         links.extend(get_links_from_document(child, index))
-    return links
+    return sorted(links, key=link_sorting_key)
 
 
 def get_method(link):
