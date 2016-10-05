@@ -63,7 +63,6 @@ class TestPaths(TestCase):
                 }
             },
             'parameters': [],
-            'description': '',
             'operationId': 'list',
             'tags': ['users']
         }
@@ -75,7 +74,6 @@ class TestPaths(TestCase):
                 }
             },
             'parameters': [],
-            'description': '',
             'operationId': 'create',
             'tags': ['users']
         }
