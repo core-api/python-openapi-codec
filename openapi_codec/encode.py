@@ -66,7 +66,7 @@ def _get_paths_object(document):
 
     for operation_id, link, tags in links:
         if link.url not in paths:
-            paths[link.url] = {}
+            paths[link.url] = OrderedDict()
 
         method = get_method(link)
         operation = _get_operation(operation_id, link, tags)
@@ -77,13 +77,19 @@ def _get_paths_object(document):
 
 def _get_operation(operation_id, link, tags):
     encoding = get_encoding(link)
+    description = link.description.strip()
+    summary = description.splitlines()[0] if description else None
 
     operation = {
         'operationId': operation_id,
-        'description': link.description,
         'responses': _get_responses(link),
         'parameters': _get_parameters(link, encoding)
     }
+
+    if description:
+        operation['description'] = description
+    if summary:
+        operation['summary'] = summary
     if encoding:
         operation['consumes'] = [encoding]
     if tags:
