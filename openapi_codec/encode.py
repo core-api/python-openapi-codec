@@ -153,15 +153,17 @@ def _get_parameters(link, encoding):
             parameters.append(parameter)
 
     if properties:
-        parameters.append({
+        parameter = {
             'name': 'data',
             'in': 'body',
             'schema': {
                 'type': 'object',
-                'properties': properties,
-                'required': required
+                'properties': properties
             }
-        })
+        }
+        if required:
+            parameter['schema']['required'] = required
+        parameters.append(parameter)
 
     return parameters
 
