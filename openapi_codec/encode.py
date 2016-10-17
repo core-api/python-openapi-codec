@@ -115,16 +115,20 @@ def _get_parameters(link, encoding):
                     'required': field.required,
                     'in': 'formData',
                     'description': field.description,
-                    'type': field.type or 'string'
+                    'type': field.type or 'string',
                 }
+                if field.type == 'array':
+                    parameter['items'] = {'type': 'string'}
                 parameters.append(parameter)
             else:
                 # Expand coreapi fields with location='form' into a single swagger
                 # parameter, with a schema containing multiple properties.
                 schema_property = {
                     'description': field.description,
-                    'type': field.type or 'string'
+                    'type': field.type or 'string',
                 }
+                if field.type == 'array':
+                    schema_property['items'] = {'type': 'string'}
                 properties[field.name] = schema_property
                 if field.required:
                     required.append(field.name)
@@ -148,8 +152,10 @@ def _get_parameters(link, encoding):
                 'required': field.required,
                 'in': location,
                 'description': field.description,
-                'type': field.type or 'string'
+                'type': field.type or 'string',
             }
+            if field.type == 'array':
+                parameter['items'] = {'type': 'string'}
             parameters.append(parameter)
 
     if properties:
