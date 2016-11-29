@@ -8,6 +8,7 @@ def _parse_document(data, base_url=None):
     base_url = _get_document_base_url(data, base_url)
     info = _get_dict(data, 'info')
     title = _get_string(info, 'title')
+    description = _get_string(info, 'description')
     consumes = get_strings(_get_list(data, 'consumes'))
     paths = _get_dict(data, 'paths')
     content = {}
@@ -21,9 +22,6 @@ def _parse_document(data, base_url=None):
                 continue
             operation = _get_dict(spec, action)
 
-            link_description = _get_string(operation, 'description')
-            link_consumes = get_strings(_get_list(operation, 'consumes', consumes))
-
             # Determine any fields on the link.
             has_body = False
             has_form = False
@@ -34,7 +32,6 @@ def _parse_document(data, base_url=None):
                 name = _get_string(parameter, 'name')
                 location = _get_string(parameter, 'in')
                 required = _get_bool(parameter, 'required', default=(location == 'path'))
-                description = _get_string(parameter, 'description')
                 if location == 'body':
                     has_body = True
                     schema = _get_dict(parameter, 'schema', dereference_using=data)
@@ -47,22 +44,27 @@ def _parse_document(data, base_url=None):
                         ]
                         fields += expanded_fields
                     else:
-                        field = Field(name=name, location='body', required=required, description=description)
+                        field_description = _get_string(parameter, 'description')
+                        field = Field(name=name, location='body', required=required, description=field_description)
                         fields.append(field)
                 else:
                     if location == 'formData':
                         has_form = True
                         location = 'form'
-                    field = Field(name=name, location=location, required=required, description=description)
+                    field_description = _get_string(parameter, 'description')
+                    field = Field(name=name, location=location, required=required, description=field_description)
                     fields.append(field)
 
+            link_consumes = get_strings(_get_list(operation, 'consumes', consumes))
             encoding = ''
             if has_body:
                 encoding = _select_encoding(link_consumes)
             elif has_form:
                 encoding = _select_encoding(link_consumes, form=True)
 
-            link = Link(url=url, action=action, encoding=encoding, fields=fields, description=link_description)
+            link_title = _get_string(operation, 'summary')
+            link_description = _get_string(operation, 'description')
+            link = Link(url=url, action=action, encoding=encoding, fields=fields, title=link_title, description=link_description)
 
             # Add the link to the document content.
             tags = get_strings(_get_list(operation, 'tags'))
@@ -78,7 +80,13 @@ def _parse_document(data, base_url=None):
             else:
                 content[operation_id] = link
 
-    return Document(url=schema_url, title=title, content=content)
+    return Document(
+        url=schema_url,
+        title=title,
+        description=description,
+        content=content,
+        media_type='application/openapi+json'
+    )
 
 
 def _get_document_base_url(data, base_url=None):
