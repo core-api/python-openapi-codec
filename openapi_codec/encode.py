@@ -123,9 +123,13 @@ def _get_parameters(link, encoding):
             else:
                 # Expand coreapi fields with location='form' into a single swagger
                 # parameter, with a schema containing multiple properties.
+                use_type = field.type or 'string'
+                if use_type == 'file':
+                    use_type = 'string'
+
                 schema_property = {
                     'description': field.description,
-                    'type': field.type or 'string',
+                    'type': use_type,
                 }
                 if field.type == 'array':
                     schema_property['items'] = {'type': 'string'}
