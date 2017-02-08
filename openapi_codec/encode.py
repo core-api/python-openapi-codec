@@ -98,8 +98,23 @@ def _get_operation(operation_id, link, tags):
     return operation
 
 
-def _get_schema_type(schema):
-    if schema is None:
+def _get_field_description(field):
+    if getattr(field, 'description', None) is not None:
+        # Deprecated
+        return field.description
+
+    if field.schema is None:
+        return ''
+
+    return field.schema.description
+
+
+def _get_field_type(field):
+    if getattr(field, 'type', None) is not None:
+        # Deprecated
+        return field.type
+
+    if field.schema is None:
         return 'string'
 
     return {
@@ -109,7 +124,7 @@ def _get_schema_type(schema):
         coreschema.Boolean: 'boolean',
         coreschema.Array: 'array',
         coreschema.Object: 'object',
-    }.get(schema.__class__, 'string')
+    }.get(field.schema.__class__, 'string')
 
 
 def _get_parameters(link, encoding):
@@ -122,8 +137,8 @@ def _get_parameters(link, encoding):
 
     for field in link.fields:
         location = get_location(link, field)
-        field_description = field.schema.description if field.schema else ''
-        field_type = _get_schema_type(field.schema)
+        field_description = _get_field_description(field)
+        field_type = _get_field_type(field)
         if location == 'form':
             if encoding in ('multipart/form-data', 'application/x-www-form-urlencoded'):
                 # 'formData' in swagger MUST be one of these media types.
