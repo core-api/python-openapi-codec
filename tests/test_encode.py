@@ -6,14 +6,19 @@ from unittest import TestCase
 
 class TestBasicInfo(TestCase):
     def setUp(self):
-        self.document = coreapi.Document(title='Example API', url='https://www.example.com/')
+        self.document = coreapi.Document(
+            title='Example API',
+            url='https://www.example.com/',
+            description='Example description.',
+        )
         self.swagger = generate_swagger_object(self.document)
 
     def test_info(self):
         self.assertIn('info', self.swagger)
         expected = {
             'title': self.document.title,
-            'version': ''
+            'version': '',
+            'description': self.document.description,
         }
         self.assertEquals(self.swagger['info'], expected)
 
