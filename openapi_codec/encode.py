@@ -15,6 +15,7 @@ def generate_swagger_object(document):
     swagger['swagger'] = '2.0'
     swagger['info'] = OrderedDict()
     swagger['info']['title'] = document.title
+    swagger['info']['description'] = document.description
     swagger['info']['version'] = ''  # Required by the spec
 
     if parsed_url.netloc:
